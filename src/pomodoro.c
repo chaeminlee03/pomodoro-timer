@@ -75,7 +75,17 @@ void end_pomodoro_session(void) {
         return;
     }
 
-    current_session->end_time = time(NULL);
+    time_t now = time(NULL);
+    time_t total_pause_time = 0;
+    
+    // 일시정지 시간 계산
+    if (is_paused) {
+        total_pause_time = now - pause_start_time;
+        is_paused = 0;
+    }
+    
+    current_session->end_time = now;
+    current_session->start_time += total_pause_time;  // 일시정지 시간만큼 시작 시간을 조정
     current_session->completed = 1;
     save_pomodoro_data();
     log_message("뽀모도로 세션이 종료되었습니다.");
@@ -141,4 +151,64 @@ PomodoroSession get_session(int index) {
     }
     PomodoroSession empty = {0};
     return empty;
+}
+
+void display_statistics(void) {
+    int total_work_time = 0;
+    int total_break_time = 0;
+    int completed_sessions = 0;
+    int actual_work_time = 0;
+    int actual_break_time = 0;
+
+    printf("\n=== 뽀모도로 통계 ===\n");
+    printf("총 세션 수: %d\n", session_count);
+    
+    if (session_count > 0) {
+        printf("\n=== 세션 상세 내역 ===\n");
+        for (int i = 0; i < session_count; i++) {
+            printf("\n세션 %d:\n", i + 1);
+            printf("  작업명: %s\n", sessions[i].task_name);
+            printf("  작업 시간: %d분\n", sessions[i].duration);
+            printf("  완료 여부: %s\n", sessions[i].completed ? "완료" : "미완료");
+            
+            if (sessions[i].completed) {
+                char start_time_str[20];
+                char end_time_str[20];
+                strftime(start_time_str, sizeof(start_time_str), "%Y-%m-%d %H:%M", localtime(&sessions[i].start_time));
+                strftime(end_time_str, sizeof(end_time_str), "%Y-%m-%d %H:%M", localtime(&sessions[i].end_time));
+                printf("  시작 시간: %s\n", start_time_str);
+                printf("  종료 시간: %s\n", end_time_str);
+                
+                // 실제 작업 시간 계산 (분 단위)
+                int actual_minutes = (sessions[i].end_time - sessions[i].start_time) / 60;
+                printf("  실제 작업 시간: %d분\n", actual_minutes);
+                actual_work_time += actual_minutes;
+                
+                completed_sessions++;
+                total_work_time += sessions[i].duration;
+                
+                // 휴식 시간 계산 (일반 휴식 + 긴 휴식)
+                int break_time = 0;
+                if (completed_sessions % settings.sessions_before_long_break == 0) {
+                    break_time = settings.long_break_duration;
+                } else {
+                    break_time = settings.break_duration;
+                }
+                total_break_time += break_time;
+                actual_break_time += break_time;
+            }
+        }
+    }
+
+    printf("\n=== 전체 통계 ===\n");
+    printf("완료된 세션 수: %d\n", completed_sessions);
+    printf("계획된 작업 시간: %d분\n", total_work_time);
+    printf("계획된 휴식 시간: %d분\n", total_break_time);
+    printf("계획된 총 시간: %d분\n", total_work_time + total_break_time);
+    printf("\n실제 통계:\n");
+    printf("실제 작업 시간: %d분\n", actual_work_time);
+    printf("실제 휴식 시간: %d분\n", actual_break_time);
+    printf("실제 총 시간: %d분\n", actual_work_time + actual_break_time);
+    printf("\n계속하려면 Enter를 누르세요...\n");
+    getchar();
 } 

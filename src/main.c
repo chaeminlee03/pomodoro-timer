@@ -192,22 +192,7 @@ void handle_pomodoro_settings(void) {
 }
 
 void handle_statistics(void) {
-    printf("\n=== 뽀모도로 통계 ===\n");
-    printf("총 세션 수: %d\n", get_session_count());
-    
-    int completed_sessions = 0;
-    int total_minutes = 0;
-    
-    for (int i = 0; i < get_session_count(); i++) {
-        PomodoroSession session = get_session(i);
-        if (session.completed) {
-            completed_sessions++;
-            total_minutes += session.duration;
-        }
-    }
-    
-    printf("완료된 세션 수: %d\n", completed_sessions);
-    printf("총 작업 시간: %d분\n", total_minutes);
+    display_statistics();
 }
 
 int main(void) {
