@@ -43,6 +43,7 @@ void start_pomodoro_session(const char* task_name) {
     is_paused = 0;
 
     log_message("새로운 뽀모도로 세션이 시작되었습니다.");
+    display_current_session();  // 시작하자마자 현재 상태를 표시
 }
 
 void pause_pomodoro_session(void) {
@@ -89,10 +90,16 @@ void display_current_session(void) {
 
     time_t now = time(NULL);
     time_t elapsed = now - current_session->start_time;
-    int remaining = current_session->duration - (elapsed / 60);
+    int remaining_minutes = current_session->duration - (elapsed / 60);
+    int remaining_seconds = 60 - (elapsed % 60);
+    
+    // 60초가 되면 분을 증가시키고 초를 0으로 리셋
+    if (remaining_seconds == 60) {
+        remaining_seconds = 0;
+    }
 
     printf("\n현재 작업: %s\n", current_session->task_name);
-    printf("남은 시간: %d분 %d초\n", remaining, (int)(elapsed % 60));
+    printf("남은 시간: %d분 %d초\n", remaining_minutes, remaining_seconds);
     printf("상태: %s\n", is_paused ? "일시정지" : "진행 중");
 }
 
