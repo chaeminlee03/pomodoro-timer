@@ -30,7 +30,7 @@ void display_current_session(void);
 void save_pomodoro_data(void);
 void load_pomodoro_data(void);
 void update_pomodoro_settings(PomodoroSettings new_settings);
-
+void print_progress_bar(int current_seconds, int total_seconds);
 // 세션 접근 함수
 int get_session_count(void);
 PomodoroSession get_session(int index);

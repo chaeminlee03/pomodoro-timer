@@ -6,7 +6,7 @@
 #include "../include/calendar.h"
 #include "../include/pomodoro.h"
 #include "../include/utils.h"
-
+#define _XOPEN_SOURCE 700
 void handle_calendar_view(void) {
     time_t now = time(NULL);
     struct tm* timeinfo = localtime(&now);
@@ -145,7 +145,7 @@ void handle_pomodoro_start(void) {
                     time_t current_time = time(NULL);
                     struct tm* timeinfo = localtime(&current_time);
                     strftime(time_str, sizeof(time_str), "%H:%M:%S", timeinfo);
-                    printf("[%s] 남은 시간: %d분\n", time_str, minutes);
+                    display_current_session();
                     fflush(stdout);
                 }
             } else {
