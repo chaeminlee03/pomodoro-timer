@@ -100,7 +100,6 @@ void display_current_session(void) {
 
     time_t now = time(NULL);
     time_t elapsed = now - current_session->start_time;
-    int total_seconds = current_session->duration * 60;
     int remaining_minutes = current_session->duration - (elapsed / 60);
     int remaining_seconds = 60 - (elapsed % 60);
     
@@ -112,9 +111,6 @@ void display_current_session(void) {
     printf("\n현재 작업: %s\n", current_session->task_name);
     printf("남은 시간: %d분 %d초\n", remaining_minutes, remaining_seconds);
     printf("상태: %s\n", is_paused ? "일시정지" : "진행 중");
-     // 진행률 바 출력
-    print_progress_bar(elapsed > total_seconds ? total_seconds : elapsed, total_seconds);
-
 }
 
 void save_pomodoro_data(void) {
@@ -216,16 +212,3 @@ void display_statistics(void) {
     printf("\n계속하려면 Enter를 누르세요...\n");
     getchar();
 } 
-void print_progress_bar(int current_seconds, int total_seconds) {
-    int bar_width = 30;
-    int filled_length = (current_seconds * bar_width) / total_seconds;
-
-    printf("[");
-    for (int i = 0; i < bar_width; ++i) {
-        if (i < filled_length)
-            printf("#");
-        else
-            printf("-");
-    }
-    printf("] %3d%%\n", (current_seconds * 100) / total_seconds);
-}
